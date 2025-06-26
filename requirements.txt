@@ -1,0 +1,8 @@
+transformers
+torch
+streamlit
+beautifulsoup4
+requests
+langdetect
+googletrans==4.0.0-rc1
+pytest
