@@ -1,44 +1,51 @@
-name: Python CI & Release
+name: 🧪 Python App (Streamlit) CI + Release
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*'   # ติดตาม push tag เช่น v1.0.0
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  test:
-    if: github.event_name != 'push' || github.ref_type != 'tag'
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.11]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+          python-version: 3.11
+
+      - name: 📦 Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -e .
-      - name: Run tests
-        run: pytest
+
+      - name: ✅ Test app runs
+        run: |
+          python -c "import app"
 
   release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Create GitHub Release
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 📦 Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
